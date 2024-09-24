@@ -1,0 +1,15 @@
+ @if(TempData["ErrorMessage"]!=null){
+                <script src="~/lib/jquery/dist/jquery.min.js"></script>
+                <script src="~/js/toastr.js"></script>
+                <script type="text/javascript">
+                 toastr.error('@TempData["ErrorMessage"]')
+                </script>
+            }
+            @if(TempData["SuccessMessage"]!=null){
+                <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+                <script src="~/js/toastr.js"></script>
+                <script type="text/javascript">
+                 toastr.success('@TempData["SuccessMessage"]')
+                </script>
+            }

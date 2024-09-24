@@ -1,0 +1,543 @@
+﻿@page
+@model IndexModel
+@{
+ViewData["Title"] = "Türkiye Adres API | İl, İlçe, Mahalle, Sokak Bilgileri | Ücretsiz Adres Veritabanı";
+    ViewData["isActiveHome"] = "active";
+}
+
+<div class="container fs-4" style="margin-top: 5%;">
+    <div class="row">
+        <div data-wow-delay="0.2s" class="col-md-4 mb-4 wow animate__animated animate__fadeInLeft">
+            <div class="p-3 border bg-light">
+                <h4>Seçenekler</h4>
+                <ul class="list-group api-li">
+                    <li class="list-group-item api-active" onclick="updateContent('tanitim')">Tanıtım</li>
+                    <li class="list-group-item" onclick="updateContent('il')">İl Bilgisi</li>
+                    <li class="list-group-item" onclick="updateContent('ilce')">İlçe Bilgisi</li>
+                    <li class="list-group-item" onclick="updateContent('mahalle')">Mahalle Bilgisi</li>
+                    <li class="list-group-item" onclick="updateContent('sokak')">Sokak Bilgisi</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div data-wow-delay="0.4s" class="col-md-8 mb-4 wow animate__animated animate__fadeInUpBig">
+            <div class="p-3 border bg-light" id="contentArea">
+                <div class="header">
+                    <h1>@ViewData["Title"]</h1>
+                    <p>API'yi keşfedin ve kullanmaya başlayın!</p>
+                </div>
+                <hr class="w-25"  style="color: rgb(255, 166, 0); height:5px;border-radius:25%" >
+                <div class="content container">
+                    <div class="intro">
+                        <h2>Hoş Geldiniz!</h2>
+                        <p>Türkiye'nin zengin adres bilgilerini keşfedin! <strong>Adres API</strong>, il, ilçe, mahalle ve sokak bilgilerine erişim sağlayarak kullanıcıların ihtiyaç duyduğu adres verilerini sunmaktadır.</p>
+                        <p><strong>Adres API</strong>, Türkiye'deki adres bilgilerini içeren kapsamlı bir veritabanına erişim sağlar. Halihazırda paralı olan ve herkesin erişimi olmayan bu bilgilere, gelişmiş web scraping yöntemleriyle ulaşarak açık kaynak kodlu bir yapıda sundum. <b> Kullanımı tamamen ücretsizdir!</b></p>
+                        <p>API kullanıcı dostu arayüzü ve hızlı yanıt süreleri ile verimli bir deneyim sunmaktadır. Geliştiriciler, işlerini kolaylaştırmak için adres bilgilerine anlık olarak erişebilir ve uygulamalarında kolayca entegre edebilir.</p>
+                    </div>
+                                    <hr class="w-50"  style="color: rgb(255, 166, 0); height:5px;border-radius:25%" >
+
+                    <div class="intro row">
+                        <div class="col-md-7">
+                            <div class="row align-items-center">
+                                <div class="col-md-9">
+                                      <h2>API Kullanım Örnekleri</h2>
+                        <h4>Mahalle Bilgilerini Al</h4>
+                        <code>GET /api/mahalleler?iladi=Bursa&ilce=Nilüfer</code>
+                          <p>Bu sorgu, Bursa ilinde Nilüfer ilçesine ait mahalleleri döndürür.</p>
+                                </div>
+                        <div class="col-md-3">
+    <button class="btn btn-primary" id="mahalle-getir" onclick="fetchMahalleByIlAdiAndIlce()">
+        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+        <span class="button-text">Getir</span>
+    </button>
+</div>
+                            </div>
+                             <div class="row">
+                                <div class="col-md-9">
+                                   
+                          <h4>Sokak Bilgilerini Al</h4>
+                        <code>GET /api/sokaklar?ilkod=16&mahalle=Muradiye</code>
+                        <p>Bu sorgu, 16 numaralı ilde Muradiye mahallesine ait sokakları döndürür.</p>
+                                </div>
+                           <div class="col-md-3">
+    <button class="btn btn-primary" id="sokak-getir" onclick="fetchSokakByIlIdAndMahalle()">
+        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+        <span class="button-text">Getir</span>
+    </button>
+</div>
+                            </div>
+                        </div>
+                       <div class="col-md-5">
+                             <h5>Sonuç:</h5>
+                    <div id="mahalle-result" style="max-height: 100px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                        <p>Buraya mahalle sorgusu sonucu gelecek.</p>
+                    </div>
+                          <div id="sokak-result" style="margin-top:30%; max-height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                        <p>Buraya sokak sorgusu sonucu gelecek.</p>
+                    </div>
+                       </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+  <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/js/toastr.js"></script>
+<script>
+
+    function updateContent(type) {
+        let contentArea = document.getElementById('contentArea');
+             $('.api-li li').removeClass('api-active');
+
+        // Tıklanan 'li' öğesine 'api-active' class'ını ekle
+        $(`li[onclick="updateContent('${type}')"]`).addClass('api-active');
+        switch(type) {
+            case 'tanitim':
+                contentArea.innerHTML=` 
+                          <div class="header">
+                    <h1>@ViewData["Title"]</h1>
+                    <p>API'mizi keşfedin ve kullanmaya başlayın!</p>
+                </div>
+                <hr class="w-25"  style="color: rgb(255, 166, 0); height:5px;border-radius:25%" >
+                <div class="content container">
+                    <div class="intro">
+                        <h2>Hoş Geldiniz!</h2>
+                        <p>Türkiye'nin zengin adres bilgilerini keşfedin! Bu API, il, ilçe, mahalle ve sokak bilgilerine erişim sağlayarak kullanıcıların ihtiyaç duyduğu adres verilerini sunmaktadır.</p>
+                        <p>Bu API, Türkiye'deki adres bilgilerini içeren kapsamlı bir veritabanına erişim sağlar. Halihazırda paralı olan ve herkesin erişimi olmayan bu bilgilere, gelişmiş web scraping yöntemleriyle ulaşarak açık kaynak kodlu bir yapıda sundum. <b> Kullanımı tamamen ücretsizdir!</b></p>
+                        <p>API'miz, kullanıcı dostu arayüzü ve hızlı yanıt süreleri ile verimli bir deneyim sunmaktadır. Geliştiriciler, işlerini kolaylaştırmak için adres bilgilerine anlık olarak erişebilir ve uygulamalarında kolayca entegre edebilir.</p>
+                    </div>
+                                    <hr class="w-50"  style="color: rgb(255, 166, 0); height:5px;border-radius:25%" >
+
+                    <div class="intro row">
+                        <div class="col-md-7">
+                            <div class="row align-items-center">
+                                <div class="col-md-9">
+                                      <h2>API Kullanım Örnekleri</h2>
+                        <h4>Mahalle Bilgilerini Al</h4>
+                        <code>GET /api/mahalleler?iladi=Bursa&ilce=Nilüfer</code>
+                          <p>Bu sorgu, Bursa ilinde Nilüfer ilçesine ait mahalleleri döndürür.</p>
+                                </div>
+                        <div class="col-md-3">
+    <button class="btn btn-primary" id="mahalle-getir" onclick="fetchMahalleByIlAdiAndIlce()">
+        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+        <span class="button-text">Getir</span>
+    </button>
+</div>
+                            </div>
+                             <div class="row">
+                                <div class="col-md-9">
+                                   
+                          <h4>Sokak Bilgilerini Al</h4>
+                        <code>GET /api/sokaklar?ilkod=16&mahalle=Muradiye</code>
+                        <p>Bu sorgu, 16 numaralı ilde Muradiye mahallesine ait sokakları döndürür.</p>
+                                </div>
+                           <div class="col-md-3">
+    <button class="btn btn-primary" id="sokak-getir" onclick="fetchSokakByIlIdAndMahalle()">
+        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+        <span class="button-text">Getir</span>
+    </button>
+</div>
+                            </div>
+                        </div>
+                       <div class="col-md-5">
+                             <h5>Sonuç:</h5>
+                    <div id="mahalle-result" style="max-height: 100px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                        <p>Buraya mahalle sorgusu sonucu gelecek.</p>
+                    </div>
+                          <div id="sokak-result" style="margin-top:30%; max-height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                        <p>Buraya sokak sorgusu sonucu gelecek.</p>
+                    </div>
+                       </div>
+                  
+                
+                        
+
+                      
+                    </div>
+                    
+                 
+                </div>`;
+                break;
+            case 'il':
+    contentArea.innerHTML = `
+         <div class="header">
+            <h1>İl Bilgisi</h1>
+            <p>İl bilgilerini almak için aşağıdaki sorguları kullanabilirsiniz:</p>
+        </div>
+                                            <hr class="w-25"  style="color: rgb(255, 166, 0); height:5px;border-radius:25%" >
+
+        <div class="intro">
+            <div class="row" style="max-height: 400px !important; overflow-y: auto;">
+                <div class="col-7">
+                    <h2>Tüm illeri getir</h2>
+                    <code>GET /api/iller</code>
+                    <p>Bu sorgu, tüm illerin bilgilerini döndürür.</p>
+ <button class="btn btn-primary" id="il-getir" onclick="fetchIller()">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                             <span class="button-text">Getir</span>
+                             </button>                      
+            <h2 class="mt-2">İl kodu sorgusuyla illeri getir</h2>
+            <code>GET /api/iller?ilkod=16</code>
+            <p>Bu sorgu, 16 il koduna sahip ili döndürür.</p>
+<button class="btn btn-primary" id="il-getir-id" onclick="fetchIlByKodu()">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                             <span class="button-text">Getir</span>
+                             </button>                        </div>
+
+                   <div class="col-5">
+                    <h5>Sonuç:</h5>
+                    <div id="il-result" style="max-height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                        <p>Buraya sorgu sonucu gelecek.</p>
+                    </div>
+                </div>
+           
+            </div>
+        <div>
+    `;
+    break;
+           case 'ilce':
+    contentArea.innerHTML = `
+        <div class="header">
+            <h1>İlçe Bilgisi</h1>
+            <p>İlçe bilgilerini almak için aşağıdaki sorguları kullanabilirsiniz:</p>
+        </div>
+                                            <hr class="w-50"  style="color: rgb(255, 166, 0); height:5px;border-radius:25%" >
+
+        <div class="intro">
+            <div class="row" ">
+                <div class="col-7">
+                    <h2>Tüm ilçeleri getir</h2>
+                    <code>GET /api/ilceler</code>
+                    <p>Bu sorgu, tüm ilçelerin bilgilerini döndürür.</p>
+<button class="btn btn-primary" id="ilce-getir" onclick="fetchIlceler()">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                             <span class="button-text">Getir</span>
+                             </button>     
+                    <h2 class="mt-2">İl kodu sorgusuyla ilçeleri getir</h2>
+                    <code>GET /api/ilceler?ilkod=16</code>
+                    <p>Bu sorgu, 16 il koduna sahip ilin ilçelerini döndürür.</p>
+                    <button class="btn btn-primary" id="ilce-getir-id" onclick="fetchIlceByIlKod()">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                             <span class="button-text">Getir</span>
+                             </button>    
+
+                    <h2 class="mt-2">İl adı sorgusuyla ilçeleri getir</h2>
+                    <code>GET /api/ilceler?iladi=Bursa</code>
+                    <p>Bu sorgu, Bursa iline ait ilçeleri döndürür.</p>
+<button class="btn btn-primary" id="ilce-getir-ad" onclick="fetchIlceByIlAdi()">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                             <span class="button-text">Getir</span>
+                             </button>                    </div>
+
+                <div class="col-5">
+                    <h5>Sonuç:</h5>
+                    <div id="ilce-result" style="max-height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                        <p>Buraya sorgu sonucu gelecek.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    break;
+           case 'mahalle':
+    contentArea.innerHTML = `
+        <div class="header">
+            <h1>Mahalle Bilgisi</h1>
+            <p>Mahalle bilgilerini almak için aşağıdaki sorguları kullanabilirsiniz:</p>
+        </div>
+                                            <hr class="w-50"  style="color: rgb(255, 166, 0); height:5px;border-radius:25%" >
+
+        <div class="intro">
+            <div class="row" >
+                <div class="col-7">
+                    <h2>İl adı ve ilçe adı sorgusuyla mahalleleri getir</h2>
+                    <code>GET /api/mahalleler?iladi=Bursa&ilce=Nilüfer</code>
+                    <p>Bu sorgu, Bursa ilinde Nilüfer ilçesine ait mahalleleri döndürür.</p>
+                        <button class="btn btn-primary" id="mahalle-getir" onclick="fetchMahalleByIlAdiAndIlce()">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                             <span class="button-text">Getir</span>
+                             </button>
+                    <h2 class="mt-2">İl kodu ve ilçe adı sorgusuyla mahalleleri getir</h2>
+                    <code>GET /api/mahalleler?ilkod=16&ilce=Yıldırım</code>
+                    <p>Bu sorgu, 16 il koduna sahip ilde, Nilüfer ilçesine ait mahalleleri döndürür.</p>
+                     <button class="btn btn-primary" id="mahalle-getir-id" onclick="fetchMahalleByIlIdAndIlce()">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                             <span class="button-text">Getir</span>
+                             </button>
+                </div>
+
+                <div class="col-5">
+                    <h5>Sonuç:</h5>
+                    <div id="mahalle-result" style="max-height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                        <p>Buraya sorgu sonucu gelecek.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    break;
+          
+       case 'sokak':
+    contentArea.innerHTML = `
+        <div class="header">
+            <h1>Sokak Bilgisi</h1>
+            <p>Sokak bilgilerini almak için aşağıdaki sorguları kullanabilirsiniz:</p>
+        </div>
+                                            <hr class="w-50"  style="color: rgb(255, 166, 0); height:5px;border-radius:25%" >
+
+        <div class="intro">
+            <div class="row">
+                <div class="col-7">
+                    <h2>İl adı ve mahalle adı sorgusuyla sokakları getir</h2>
+                    <code>GET /api/sokaklar?iladi=Bursa&mahalle=Çekirge</code>
+                    <p>Bu sorgu, Bursa ilinde Gemlik mahallesine ait sokakları döndürür.</p>
+
+                     <button class="btn btn-primary" id="sokak-getir-ad" onclick="fetchSokakByIlAdiAndMahalle()">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                             <span class="button-text">Getir</span>
+                    </button>
+                    <h2 class="mt-2">İl kodu ve mahalle adı sorgusuyla sokakları getir</h2>
+                    <code>GET /api/sokaklar?ilkod=16&mahalle=Muradiye</code>
+                    <p>Bu sorgu, 16 numaralı ilde Gemlik mahallesine ait sokakları döndürür.</p>
+                      <button class="btn btn-primary" id="sokak-getir" onclick="fetchSokakByIlIdAndMahalle()">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                             <span class="button-text">Getir</span>
+                             </button>
+                </div>
+
+                <div class="col-5 wow animate__animated animate__fadeIn">
+                    <h5>Sonuç:</h5>
+                    <div id="sokak-result" style="max-height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                        <p>Buraya sorgu sonucu gelecek.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    break;
+            
+        }
+    }
+function fetchIller() {
+      var button = $('#il-getir');
+    var spinner = button.find('.spinner-border');
+    var buttonText = button.find('.button-text');
+     spinner.removeClass('d-none');
+    buttonText.addClass('d-none');
+    fetch('/api/iller')
+        .then(response => response.json())
+        .then(data => {
+               spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('il-result').innerHTML = JSON.stringify(data, null, 2);
+                                    toastr.success("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLDİ")
+
+        })
+        .catch(error => {
+            spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('il-result').innerHTML = 'Bir hata oluştu: ' + error;
+                                    toastr.error("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLEMEDİ")
+
+        });
+}
+
+function fetchIlByKodu() {
+          var button = $('#il-getir-id');
+    var spinner = button.find('.spinner-border');
+    var buttonText = button.find('.button-text');
+     spinner.removeClass('d-none');
+    buttonText.addClass('d-none');
+    fetch('/api/iller?ilkod=16')
+        .then(response => response.json())
+        .then(data => {
+                  spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('il-result').innerHTML = JSON.stringify(data, null, 2);
+                        toastr.success("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLDİ")
+
+        })
+        .catch(error => {
+                  spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('il-result').innerHTML = 'Bir hata oluştu: ' + error;
+                        toastr.error("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLEMEDİ")
+
+        });
+}
+function fetchIlceler() {
+     var button = $('#ilce-getir');
+    var spinner = button.find('.spinner-border');
+    var buttonText = button.find('.button-text');
+     spinner.removeClass('d-none');
+    buttonText.addClass('d-none');
+    fetch('/api/ilceler')
+        .then(response => response.json())
+        .then(data => {
+               spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('ilce-result').innerHTML = JSON.stringify(data, null, 2);
+                        toastr.success("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLDİ")
+
+
+        })
+        .catch(error => {
+               spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('ilce-result').innerHTML = 'Bir hata oluştu: ' + error;
+                        toastr.error("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLEMEDİ")
+
+        });
+}
+
+
+function fetchIlceByIlKod() {
+       var button = $('#ilce-getir-id');
+    var spinner = button.find('.spinner-border');
+    var buttonText = button.find('.button-text');
+     spinner.removeClass('d-none');
+    buttonText.addClass('d-none');
+    fetch('/api/ilceler?ilkod=16')
+        .then(response => response.json())
+        .then(data => {
+                     spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('ilce-result').innerHTML = JSON.stringify(data, null, 2);
+                        toastr.success("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLDİ")
+
+        })
+        .catch(error => {
+                     spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('ilce-result').innerHTML = 'Bir hata oluştu: ' + error;
+                        toastr.error("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLEMEDİ")
+
+        });
+}
+
+function fetchIlceByIlAdi() {
+      var button = $('#ilce-getir-ad');
+    var spinner = button.find('.spinner-border');
+    var buttonText = button.find('.button-text');
+     spinner.removeClass('d-none');
+    buttonText.addClass('d-none');
+    fetch('/api/ilceler?iladi=Bursa')
+        .then(response => response.json())
+        .then(data => {
+                   spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('ilce-result').innerHTML = JSON.stringify(data, null, 2);
+                                    toastr.success("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLDİ")
+
+        })
+        .catch(error => {
+                 spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('ilce-result').innerHTML = 'Bir hata oluştu: ' + error;
+                                    toastr.success("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLEMEDİ")
+
+        });
+}
+
+function fetchMahalleByIlAdiAndIlce() {
+    var button = $('#mahalle-getir');
+    var spinner = button.find('.spinner-border');
+    var buttonText = button.find('.button-text');
+
+    spinner.removeClass('d-none');
+    buttonText.addClass('d-none');
+    
+    fetch('/api/mahalleler?iladi=Bursa&ilce=Nilüfer')
+        .then(response => response.json())
+        .then(data => {
+            spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('mahalle-result').innerHTML = JSON.stringify(data, null, 2);
+            toastr.success("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLDİ")
+        })
+        .catch(error => {
+              spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('mahalle-result').innerHTML = 'Bir hata oluştu: ' + error;
+            toastr.error("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLEMEDİ")
+
+        });
+}
+
+function fetchMahalleByIlIdAndIlce() {
+      var button = $('#mahalle-getir-id');
+    var spinner = button.find('.spinner-border');
+    var buttonText = button.find('.button-text');
+
+    spinner.removeClass('d-none');
+    buttonText.addClass('d-none');
+    fetch('/api/mahalleler?ilkod=16&ilce=Yıldırım')
+        .then(response => response.json())
+        .then(data => {
+                  spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('mahalle-result').innerHTML = JSON.stringify(data, null, 2);
+                        toastr.success("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLDİ")
+
+        })
+        .catch(error => {
+                  spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('mahalle-result').innerHTML = 'Bir hata oluştu: ' + error;
+                        toastr.error("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLEMEDİ")
+
+        });
+}   
+
+function fetchSokakByIlAdiAndMahalle() {
+     var button = $('#sokak-getir-ad');
+    var spinner = button.find('.spinner-border');
+    var buttonText = button.find('.button-text');
+     spinner.removeClass('d-none');
+    buttonText.addClass('d-none');
+    fetch('/api/sokaklar?iladi=Bursa&mahalle=Çekirge')
+        .then(response => response.json())
+        .then(data => {
+            spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('sokak-result').innerHTML = JSON.stringify(data, null, 2);
+                        toastr.success("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLDİ")
+
+        })
+        .catch(error => {
+            spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('sokak-result').innerHTML = 'Bir hata oluştu: ' + error;
+                        toastr.error("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLEMEDİ")
+
+        });
+}
+
+function fetchSokakByIlIdAndMahalle() {
+    var button = $('#sokak-getir');
+    var spinner = button.find('.spinner-border');
+    var buttonText = button.find('.button-text');
+     spinner.removeClass('d-none');
+    buttonText.addClass('d-none');
+    fetch('/api/sokaklar?ilkod=16&mahalle=Muradiye')
+        .then(response => response.json())
+        .then(data => {
+                 spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('sokak-result').innerHTML = JSON.stringify(data, null, 2);
+                        toastr.success("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLDİ")
+
+        })
+        .catch(error => {
+                  spinner.addClass('d-none');
+            buttonText.removeClass('d-none');
+            document.getElementById('sokak-result').innerHTML = 'Bir hata oluştu: ' + error;
+                        toastr.error("SORGU SONUCU BAŞARILI BİR ŞEKİLDE GETİRİLEMEDİ")
+
+        });
+}
+
+
+</script>
