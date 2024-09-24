@@ -1,0 +1,1 @@
+wwwroot/tr_adres.db filter=lfs diff=lfs merge=lfs -text

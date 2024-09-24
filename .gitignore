@@ -1,0 +1,13 @@
+wwwroot/tr_adres.db
+# Visual Studio
+.vscode/
+bin/
+obj/
+
+# App settings
+appsettings.json
+appsettings.Development.json
+
+# User settings
+*.user
+
